@@ -2,18 +2,18 @@ import Button from "./Button";
 import { useFetchData, UsePostMhs } from "../hooks/UseFetchData";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const RenderData = () => {
-  const { mahasiswa, setMahasiswa } = useFetchData(); // Perubahan di sini
-  const { postData, loading } = UsePostMhs(); // Perubahan di sini
+  const { mahasiswa, setMahasiswa } = useFetchData();
+  const { postData, loading } = UsePostMhs();
   const MySwal = withReactContent(Swal);
   const [isLogin, setIsLogin] = useState(false);
 
-  const token = localStorage.getItem("authToken");
-  if(token){
-    setIsLogin(true);
-  }
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    setIsLogin(!!token); 
+  }, []);
 
   const handleModal = async () => {
     const { value: formValues } = await MySwal.fire({
