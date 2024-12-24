@@ -1,7 +1,5 @@
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
-import RenderData from "../pages/DataMahasiswa";
-import Form from "../components/Form";
 
 const AdminLayout = ({ children }) => {
   return (

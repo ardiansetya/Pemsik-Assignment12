@@ -3,6 +3,7 @@ import AdminLayout from "../layouts/AdminLayout";
 import RenderData from "../components/RenderData";
 
 const DataMahasiswa = () => {
+  
   return (
     <AdminLayout>
       <RenderData/>

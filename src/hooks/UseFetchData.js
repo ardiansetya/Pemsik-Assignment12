@@ -1,40 +1,44 @@
 import { useEffect, useState } from "react";
 import  axiosInstance  from "../axios/axiosInstance";
 
-export const UseFetchData = () => {
-  const [datas, setDatas] = useState([])
+export const useFetchData = () => {
+  const [datas, setDatas] = useState([]);
 
   const fetchDataMahasiswa = async () => {
     try {
-      const response = await axiosInstance.get('/api/mahasiswa')
-      setDatas(response.data)
+      const response = await axiosInstance.get('/api/mahasiswa');
+      setDatas(response.data);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchDataMahasiswa()
-  },[])
+    fetchDataMahasiswa();
+  }, []); 
 
-  return {mahasiswa:datas}
+  return { mahasiswa: datas, setMahasiswa: setDatas };
 };
 
-export const UsePostData = (body) => {
-  const [datas, setDatas] = useState([])
+export const UsePostMhs = () => {
+  const [datas, setDatas] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const fetchData = async () => {
+  const postData = async (body) => {
+    setLoading(true);
+    setError(null); 
     try {
-      const response = await axiosInstance.post('/api/mahasiswa', body)
-      setDatas(response.data)
+      const response = await axiosInstance.post("/api/mahasiswa", body);
+      setDatas(response.data);
+      return response.data; 
     } catch (error) {
-      console.log(error)
+      setError(error.response?.data?.message || "Terjadi kesalahan saat menambahkan data");
+      throw error; 
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
-  useEffect(() => {
-    fetchData()
-  },[])
-
-  return {posts:datas}
-}
+  return { newMhs: datas, postData, loading, error };
+};
