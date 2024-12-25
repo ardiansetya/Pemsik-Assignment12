@@ -42,3 +42,36 @@ export const UsePostMhs = () => {
 
   return { newMhs: datas, postData, loading, error };
 };
+
+export const useUpdateMahasiswa = () => {
+  const [datas, setDatas] = useState([]);
+
+  const editDataMahasiswa = async (id, body) => {
+    try {
+      const response = await axiosInstance.put(`/api/mahasiswa/${id}`, body);
+      setDatas(response.data);
+      return response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return { newMhs:datas, editDataMahasiswa };
+
+}
+
+export const useDeleteMahasiswa = () => {
+  const [datas, setDatas] = useState([]);
+
+  const deleteDataMahasiswa = async (id) => {
+    try {
+      const response = await axiosInstance.delete(`/api/mahasiswa/${id}`);
+      setDatas(response.data);
+      return response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return { deleteMhs: datas, deleteDataMahasiswa };
+}

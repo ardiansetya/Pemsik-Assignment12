@@ -1,5 +1,5 @@
 import Button from "./Button";
-import { useFetchData, UsePostMhs } from "../hooks/UseFetchData";
+import { useDeleteMahasiswa, useFetchData, UsePostMhs, useUpdateMahasiswa } from "../hooks/UseFetchData";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
@@ -7,6 +7,11 @@ import { useEffect, useState } from "react";
 const RenderData = () => {
   const { mahasiswa, setMahasiswa } = useFetchData();
   const { postData, loading } = UsePostMhs();
+  const { editDataMahasiswa } = useUpdateMahasiswa();
+  const { deleteDataMahasiswa } = useDeleteMahasiswa();
+
+
+
   const MySwal = withReactContent(Swal);
   const [isLogin, setIsLogin] = useState(false);
 
@@ -69,6 +74,68 @@ const RenderData = () => {
       }
     }
   };
+
+  const handleEdit = async (id) => {
+    try {
+      const response = await editDataMahasiswa(id);
+      setMahasiswa((prevMahasiswa) => ({
+        ...prevMahasiswa,
+        data: prevMahasiswa.data.map((item) =>
+          item.id === id ? response.data : item
+        ),
+      }));
+      await Swal.fire(
+        "Berhasil!",
+        `Mahasiswa ${response.data.nama} berhasil diubah.`,
+        "success"
+      );
+    } catch (error) {
+      Swal.fire(
+        "Error!",
+        error.response?.data?.message ||
+          "Terjadi kesalahan saat mengubah data.",
+        "error"
+      );
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+     
+     const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+      })
+
+      if (result.isConfirmed) {
+        const response = await deleteDataMahasiswa(id);
+        console.log(response);
+        setMahasiswa((prevMahasiswa) => ({
+          ...prevMahasiswa,
+          data: prevMahasiswa.data.filter((item) => item.id !== id),
+        }));
+
+        Swal.fire({
+          title: "Deleted!",
+          text: "Your file has been deleted.",
+          icon: "success",
+        });
+      }
+    } catch (error) {
+      Swal.fire(
+        "Error!",
+        error.response?.data?.message ||
+          "Terjadi kesalahan saat menghapus data.",
+        "error"
+      );
+    }
+  }
+  
   return (
     <div className="bg-white shadow-md rounded-md p-4 mb-5 overflow-hidden">
       <div className="flex items-center justify-between gap-5">
@@ -107,6 +174,9 @@ const RenderData = () => {
               <th className="border border-gray-300 px-4 py-2 text-left font-semibold text-gray-600">
                 Prodi
               </th>
+              <th className="border border-gray-300 px-4 py-2 text-left font-semibold text-gray-600">
+                Action
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -133,6 +203,10 @@ const RenderData = () => {
                   <td className="border border-gray-300 px-4 py-2 text-gray-800">
                     {mhs.progdi?.nama || "-"}
                   </td>
+                  <td className="border border-gray-300 px-4 py-2 text-gray-800 flex gap-3">
+                    <Button variant="secondary" onClick={() => handleEdit(mhs.id)}>Edit</Button>
+                    <Button variant="danger" onClick={() => handleDelete(mhs.id)}>Hapus</Button>
+                  </td>
                 </tr>
               ))
             ) : (
@@ -149,6 +223,8 @@ const RenderData = () => {
       </div>
     </div>
   );
+  
 };
+
 
 export default RenderData;
