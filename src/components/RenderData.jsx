@@ -74,29 +74,87 @@ const RenderData = () => {
       }
     }
   };
+ const handleModalEdit = async (id, mhs) => {
+   try {
+     const { value: formValues } = await MySwal.fire({
+       title: "Edit mhs",
+       html: `
+        <input id="swal-input-nim" class="swal2-input" placeholder="NIM" value="${
+          mhs.nim || ""
+        }">
+        <input id="swal-input-nama" class="swal2-input" placeholder="Nama" value="${
+          mhs.nama || ""
+        }">
+        <input id="swal-input-alamat" class="swal2-input" placeholder="Alamat" value="${
+          mhs.alamat || ""
+        }">
+        <input id="swal-input-umur" type="number" class="swal2-input" placeholder="Umur" value="${
+          mhs.umur || ""
+        }">
+        <input id="swal-input-progdi_id" class="swal2-input" placeholder="Progdi ID" value="${
+          mhs.progdi_id || ""
+        }">
+      `,
+       focusConfirm: false,
+       preConfirm: () => {
+         const nim = document.getElementById("swal-input-nim").value.trim();
+         const nama = document.getElementById("swal-input-nama").value.trim();
+         const alamat = document
+           .getElementById("swal-input-alamat")
+           .value.trim();
+         const umur = parseInt(
+           document.getElementById("swal-input-umur").value.trim(),
+           10
+         );
+         const progdi_id = document
+           .getElementById("swal-input-progdi_id")
+           .value.trim();
+
+         if (!nim || !nama || !alamat || !umur || !progdi_id) {
+           MySwal.showValidationMessage("Semua field harus diisi!");
+           return null;
+         }
+
+         if (isNaN(umur) || umur <= 0) {
+           MySwal.showValidationMessage("Umur harus berupa angka positif!");
+           return null;
+         }
+
+         return { nim, nama, alamat, umur, progdi_id };
+       },
+     });
+
+     if (!formValues) return;
+
+     const response = await editDataMahasiswa(id, formValues);
+
+
+     setMahasiswa((prevMahasiswa) => ({
+       ...prevMahasiswa,
+       data: prevMahasiswa.data.map((mahasiswa) =>
+         mahasiswa.id === id ? { ...mahasiswa, ...response.data } : mahasiswa
+       ),
+     }));
+
+     await MySwal.fire(
+       "Berhasil!",
+       `Data mahasiswa ${formValues.nama} berhasil diperbarui.`,
+       "success"
+     );
+   } catch (error) {
+     // Tangani error
+     MySwal.fire(
+       "Error!",
+       error.response?.data?.message ||
+         "Terjadi kesalahan saat mengupdate data.",
+       "error"
+     );
+   }
+ };
+
 
   const handleEdit = async (id) => {
-    try {
-      const response = await editDataMahasiswa(id);
-      setMahasiswa((prevMahasiswa) => ({
-        ...prevMahasiswa,
-        data: prevMahasiswa.data.map((item) =>
-          item.id === id ? response.data : item
-        ),
-      }));
-      await Swal.fire(
-        "Berhasil!",
-        `Mahasiswa ${response.data.nama} berhasil diubah.`,
-        "success"
-      );
-    } catch (error) {
-      Swal.fire(
-        "Error!",
-        error.response?.data?.message ||
-          "Terjadi kesalahan saat mengubah data.",
-        "error"
-      );
-    }
+   
   };
 
   const handleDelete = async (id) => {
@@ -204,7 +262,7 @@ const RenderData = () => {
                     {mhs.progdi?.nama || "-"}
                   </td>
                   <td className="border border-gray-300 px-4 py-2 text-gray-800 flex gap-3">
-                    <Button variant="secondary" onClick={() => handleEdit(mhs.id)}>Edit</Button>
+                    <Button variant="secondary" onClick={() => handleModalEdit(mhs.id, mhs)}>Edit</Button>
                     <Button variant="danger" onClick={() => handleDelete(mhs.id)}>Hapus</Button>
                   </td>
                 </tr>
